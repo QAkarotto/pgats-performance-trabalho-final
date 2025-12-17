@@ -48,18 +48,13 @@ jobs:
     - name: Run external tests
       run: npm run test:external
 
-    - name: Install k6
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y apt-transport-https
-        sudo mkdir -p /etc/apt/keyrings
-        curl https://dl.k6.io/key.gpg | sudo gpg --dearmor | sudo tee /etc/apt/keyrings/k6-archive-keyring.gpg > /dev/null
-        echo "deb [signed-by=/etc/apt/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6-stable.list
-        sudo apt-get update
-        sudo apt-get install -y k6
+    - name: Setup K6
+      uses: grafana/setup-k6-action@v1
 
     - name: Run k6 performance tests
-      run: npm run test:k6 || echo "k6 tests completed with warnings"
+      uses: grafana/run-k6-action@v1
+      with:
+        path: tests/k6/auth-flow.test.js
 
     - name: Run all tests with coverage and generate reports
       run: |
