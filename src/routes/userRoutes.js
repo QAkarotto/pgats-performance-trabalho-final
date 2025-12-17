@@ -1,5 +1,6 @@
 const express = require('express');
-const { createUser } = require('../controllers/userController');
+const { createUser, getCurrentUser } = require('../controllers/userController');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -61,7 +62,47 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *   get:
+ *     summary: Get current authenticated user
+ *     description: Retrieve the data of the currently authenticated user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: User ID
+ *                 email:
+ *                   type: string
+ *                   description: User email
+ *                 name:
+ *                   type: string
+ *                   description: User name
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   description: User creation date
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/', createUser);
+router.get('/', authMiddleware, getCurrentUser);
 
 module.exports = router;
