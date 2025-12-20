@@ -1,669 +1,545 @@
-# 📊 K6 Performance Testing Suite - PGATS-2
+# 🚀 Testes de Performance com K6 - Car Rental API
 
-## Descrição do Projeto
+<div align="center">
 
-Este é o **TRABALHO FINAL DA DISCIPLINA 09 AUTOMAÇÃO DE TESTES DE PERFORMANCE** da **PÓS-GRADUAÇÃO EM AUTOMAÇÃO DE TESTES DE SOFTWARE | PGATS-2**.
+![K6](https://img.shields.io/badge/K6-7D64FF?style=for-the-badge&logo=k6&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-Os testes de performance implementados aqui utilizam **K6** para exercitar o fluxo principal da API de autenticação e gerenciamento de usuários. O teste cobre os seguintes endpoints:
+**Trabalho Final - Pós-Graduação em Automação de Testes de Software**  
+**Disciplina:** Automação de Testes de Performance
 
-1. **POST `/api/users`** - Registra um novo usuário
-2. **POST `/api/auth/login`** - Realiza login e retorna token JWT
-3. **GET `/api/users`** - Recupera dados do usuário autenticado (com token JWT)
-
----
-
-## Estrutura de Pastas
-
-```
-tests/k6/
-├── auth-flow.test.js          # Teste principal de performance
-├── README.md                  # Este arquivo - documentação completa
-├── helpers/
-│   ├── auth.js               # Função de autenticação (Conceito: Helpers)
-│   ├── email.js              # Geração de emails aleatórios (Conceito: Faker)
-│   ├── password.js           # Geração de senhas válidas (Conceito: Faker)
-│   ├── name.js               # Geração de nomes aleatórios (Conceito: Faker)
-│   └── baseUrl.js            # Obtenção de base URL (Conceito: Variável de Ambiente)
-└── data/
-    └── users.json            # Dados para data-driven testing
-```
+</div>
 
 ---
 
-## Conceitos Implementados
+## 📋 Sumário
 
-### 1. Thresholds
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação](#-instalação)
+- [Como Executar](#-como-executar)
+- [Conceitos Implementados](#-conceitos-implementados)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Resultados e Métricas](#-resultados-e-métricas)
+- [Autor](#-autor)
 
-Define limites de performance que o teste deve respeitar. No projeto, estabelecemos que 95% das requisições devem responder em menos de 1 segundo.
+---
 
-**Localização**: `tests/k6/auth-flow.test.js`
+## 🎯 Sobre o Projeto
+
+Este projeto implementa **testes de performance automatizados** utilizando **K6** para validar o comportamento de uma API REST de sistema de aluguel de carros sob diferentes condições de carga. O teste foi desenvolvido como trabalho final da disciplina de Automação de Testes de Performance da Pós-Graduação em Automação de Testes de Software.
+
+### Objetivo
+
+Avaliar a capacidade da API de suportar múltiplos usuários simultâneos, garantindo que:
+- ✅ Os tempos de resposta permaneçam dentro dos limites aceitáveis
+- ✅ O sistema mantenha sua integridade sob carga
+- ✅ A autenticação JWT funcione corretamente em cenários de alta concorrência
+- ✅ Todos os endpoints críticos respondam adequadamente
+
+### Estratégias de Teste
+
+O projeto implementa **duas estratégias complementares** de geração de dados:
+
+1. **Data-Driven Testing (Grupo 01)**: Utiliza dados pré-gerados do arquivo `users.json`
+2. **Faker Runtime (Grupo 02)**: Gera dados dinamicamente usando a extensão `k6/x/faker`
+
+---
+
+## 🛠 Tecnologias Utilizadas
+
+- **[K6](https://k6.io/)** - Ferramenta de testes de performance
+- **[xk6-faker](https://github.com/szkiba/xk6-faker)** - Extensão K6 para geração de dados fake
+- **Node.js** - Para scripts auxiliares de geração de dados
+- **Faker.js** - Biblioteca para geração de dados realistas
+
+---
+
+## 📦 Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado:
+
+- **Node.js** >= 16.0.0
+- **npm** >= 7.0.0
+- **Go** >= 1.19 (para compilar a extensão xk6-faker)
+- **Git**
+
+---
+
+## 🔧 Instalação
+
+### 1️⃣ Instalar K6
+
+#### Windows (Chocolatey)
+```bash
+choco install k6
+```
+
+#### macOS (Homebrew)
+```bash
+brew install k6
+```
+
+#### Linux (Debian/Ubuntu)
+```bash
+sudo gpg -k
+sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update
+sudo apt-get install k6
+```
+
+### 2️⃣ Instalar Go (necessário para xk6-faker)
+
+#### Windows (Chocolatey)
+```bash
+choco install golang
+```
+
+#### macOS (Homebrew)
+```bash
+brew install go
+```
+
+#### Linux (Debian/Ubuntu)
+```bash
+sudo apt install golang-go
+```
+
+### 3️⃣ Instalar xk6 (K6 Extension Builder)
+
+```bash
+go install go.k6.io/xk6/cmd/xk6@latest
+```
+
+### 4️⃣ Compilar K6 com a extensão xk6-faker
+
+```bash
+xk6 build --with github.com/grafana/xk6-faker@latest
+```
+
+> 💡 **Importante:** Este comando cria um executável `k6` (ou `k6.exe` no Windows) no diretório atual com a extensão faker integrada. Use este executável customizado para rodar os testes.
+
+### 5️⃣ Instalar dependências do projeto
+
+```bash
+npm install
+```
+
+### 6️⃣ Gerar dados de teste
+
+```bash
+npm run generate:fake-data
+```
+
+---
+
+## ▶️ Como Executar
+
+### Iniciar a API
+
+Primeiro, certifique-se de que a API está rodando:
+
+```bash
+npm start
+```
+
+Ou em modo desenvolvimento:
+
+```bash
+npm run dev
+```
+
+### Executar os Testes de Performance
+
+```bash
+npm run test:performance
+```
+
+### Visualizar Relatórios
+
+Após a execução, o teste gera automaticamente:
+
+- **report.html** - Relatório visual completo
+- **results.json** - Dados brutos em JSON
+
+Para abrir o relatório HTML:
+
+```bash
+# Windows
+start report.html
+
+# macOS
+open report.html
+
+# Linux
+xdg-open report.html
+```
+
+---
+
+## 🎓 Conceitos Implementados
+
+Este projeto demonstra a aplicação prática de **11 conceitos fundamentais** de testes de performance com K6:
+
+### 1. 📊 Thresholds
+
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 21-31)
+
+Os **Thresholds** (limites) definem critérios de aceitação para o teste. Se algum threshold for violado, o teste falha.
 
 ```javascript
 export const options = {
   thresholds: {
-    http_req_duration: ['p(95)<2000'],    // 95% de todas requisições < 2s
-    'register_duration': ['p(95)<3000'],  // Registro lento (bcrypt hashing)
-    'login_duration': ['p(95)<2000'],     // Login < 2s
-    'getuser_duration': ['p(95)<1000'],   // Get user mais rápido < 1s
-    checks: ['rate>0.80'],                // 80% dos checks devem passar
+    http_req_duration: ['p(95)<2000'],
+    'register_duration': ['p(95)<3000'],
+    'login_duration': ['p(95)<2000'],
+    'getuser_duration': ['p(95)<1000'],
+    'faker_register_duration': ['p(95)<3000'],
+    'faker_login_duration': ['p(95)<2000'],
+    'faker_getuser_duration': ['p(95)<1000'],
+    checks: ['rate>0.80'],
   },
-};
 ```
 
-**Explicação**: 
-- **Thresholds Realistas**: Ajustados para desenvolvimento com armazenamento em-memory
-- **p95 < 3000ms (Register)**: Mais lento devido ao hashing de senha com bcrypt (10 rounds)
-- **p95 < 2000ms (Others)**: Padrão para endpoints HTTP
-- **Checks > 80%**: Permite falhas ocasionais na validação
-- **Produção**: Deve-se ser mais agressivo: p95 < 500ms com otimizações (hashing mais rápido, caching)
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Thresholds**. Definimos que 95% das requisições devem ter duração inferior aos valores especificados (p95 < 2000ms para requisições gerais, p95 < 3000ms para registro, etc.). Além disso, estabelecemos que pelo menos 80% dos checks devem passar. O teste é considerado falho se qualquer um destes limites for ultrapassado.
 
 ---
 
-### 2. Checks
+### 2. ✅ Checks
 
-Valida se as respostas das requisições contêm os dados esperados e os códigos de status corretos.
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 76-81)
 
-**Localização**: `tests/k6/auth-flow.test.js`
+Os **Checks** são validações que verificam se as respostas estão corretas, sem interromper o fluxo do teste.
 
 ```javascript
-import { check } from 'k6';
-
-// Validar registro de usuário
 check(response, {
   'Register status is 201': (r) => r.status === 201,
   'Register response contains id': (r) => r.json('id') !== undefined && r.json('id') !== null,
   'Register response contains email': (r) => r.json('email') !== undefined,
   'Register response contains createdAt': (r) => r.json('createdAt') !== undefined,
 });
-
-// Validar login
-check(response, {
-  'Login status is 200': (r) => r.status === 200,
-  'Login response contains token': (r) => r.json('token') !== undefined && r.json('token') !== null,
-  'Token is not empty': (r) => r.json('token').length > 0,
-});
-
-// Validar obtenção de dados do usuário
-check(response, {
-  'Get user status is 200': (r) => r.status === 200,
-  'Response contains user data': (r) => r.body !== null && r.body !== '',
-});
 ```
 
-**Explicação**: Cada check verifica uma condição específica. Se um check falhar, a métrica de "failed checks" aumenta, o que é útil para identificar problemas na API.
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Checks**. Validamos que o endpoint de registro retorna status HTTP 201 (Created) e que a resposta contém todos os campos obrigatórios (id, email, createdAt). Os checks são executados após cada requisição e seus resultados são agregados nas métricas finais, mas não interrompem o teste mesmo se falharem.
 
 ---
 
-### 3. Helpers
+### 3. 🔧 Helpers
 
-Funções reutilizáveis criadas para modularizar o código e facilitar manutenção e reuso em múltiplos testes.
+**Localização:** `tests/k6/helpers/baseUrl.js`
 
-#### 3.1 Base URL Helper
-
-**Localização**: `tests/k6/helpers/baseUrl.js`
+Os **Helpers** são funções reutilizáveis que encapsulam lógica comum, facilitando a manutenção.
 
 ```javascript
 export function getBaseUrl() {
   return __ENV.BASE_URL || 'http://localhost:3000';
 }
-
-// Uso no teste:
-import { getBaseUrl } from './helpers/baseUrl.js';
-const baseUrl = getBaseUrl();
-
-// Executar com comando customizado:
-// k6 run --env BASE_URL=http://localhost:3000 tests/k6/auth-flow.test.js
 ```
 
-**Explicação**: Permite passar a URL da API como variável de ambiente, tornando os testes mais portáveis.
-
-#### 3.2 Authentication Helper
-
-**Localização**: `tests/k6/helpers/auth.js`
-
+**Uso no teste principal** (`tests/k6/auth-flow.test.js`, linhas 5 e 9):
 ```javascript
-import http from 'k6/http';
+import { getBaseUrl } from './helpers/baseUrl.js';
 
-export function login(baseUrl, email, password) {
-  const url = `${baseUrl}/api/auth/login`;
-  const payload = JSON.stringify({
-    email,
-    password,
-  });
-  
-  const params = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-  
-  const response = http.post(url, payload, params);
-  
-  if (response.status !== 200) {
-    throw new Error(`Login failed with status ${response.status}: ${response.body}`);
-  }
-  
-  const token = response.json('token');
-  return token;
-}
+const baseUrl = getBaseUrl();
 ```
 
-**Explicação**: Encapsula a lógica de login, permitindo reutilização em diferentes testes sem duplicação de código.
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/helpers/baseUrl.js` e demonstra o uso de **Helpers**. Criamos uma função reutilizável que obtém a URL base da API. Esta função é importada no teste principal e utilizada em todas as requisições HTTP. Isso centraliza a configuração da URL e facilita a execução do teste em diferentes ambientes sem modificar o código do teste.
 
 ---
 
-### 4. Trends
+### 4. 📈 Trends (Métricas Customizadas)
 
-Métricas customizadas para monitorar o tempo de duração de requisições específicas para cada endpoint.
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 11-16 e linha 74)
 
-**Localização**: `tests/k6/auth-flow.test.js`
+As **Trends** são métricas customizadas que rastreiam valores ao longo do tempo e calculam estatísticas.
 
+**Declaração das Trends:**
 ```javascript
-import { Trend } from 'k6/metrics';
-
-// Criar trends para cada endpoint
 const registerDuration = new Trend('register_duration');
 const loginDuration = new Trend('login_duration');
 const getUserDuration = new Trend('getuser_duration');
-
-// Usar no teste
-group('Register User', function () {
-  const response = http.post(`${baseUrl}/api/users`, payload, params);
-  registerDuration.add(response.timings.duration);
-  // ...
-});
-
-group('Login User', function () {
-  const response = http.post(`${baseUrl}/api/auth/login`, payload, params);
-  loginDuration.add(response.timings.duration);
-  // ...
-});
-
-group('Get User Data', function () {
-  const response = http.get(`${baseUrl}/api/users`, params);
-  getUserDuration.add(response.timings.duration);
-  // ...
-});
+const fakerRegisterDuration = new Trend('faker_register_duration');
+const fakerLoginDuration = new Trend('faker_login_duration');
+const fakerGetUserDuration = new Trend('faker_getuser_duration');
 ```
 
-**Explicação**: Os Trends permitem separar e monitorar métricas de performance por endpoint, facilitando a identificação de gargalos específicos.
+**Uso no teste (linha 74):**
+```javascript
+const response = http.post(`${baseUrl}/api/users`, payload, params);
+registerDuration.add(response.timings.duration);
+```
+
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Trends**. Criamos 6 métricas customizadas para rastrear a duração de cada operação (3 para data-driven testing e 3 para faker). Após cada requisição, adicionamos o tempo de resposta à trend correspondente usando o método `.add()`. O K6 automaticamente calcula estatísticas como média, mediana, percentis (p90, p95, p99), valores mínimo e máximo.
 
 ---
 
-### 5. Faker (Geração de Dados Aleatórios)
+### 5. 🎭 Faker (k6/x/faker)
 
-Helpers para gerar dados únicos a cada iteração do teste, simulando múltiplos usuários reais.
+**Localização:** `tests/k6/auth-flow.test.js` (linha 7 e linhas 141-143)
 
-#### 5.1 Email Generator
+A extensão **xk6-faker** permite gerar dados realistas em tempo de execução.
 
-**Localização**: `tests/k6/helpers/email.js`
-
+**Importação:**
 ```javascript
-export function generateRandomEmail() {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 10000);
-  return `user_${timestamp}_${random}@example.com`;
-}
+import faker from 'k6/x/faker';
 ```
 
-**Explicação**: Gera emails únicos no formato `user_{timestamp}_{random}@example.com`, garantindo que cada registro de usuário tenha um email diferente.
-
-#### 5.2 Password Generator
-
-**Localização**: `tests/k6/helpers/password.js`
-
+**Uso no Grupo 02 (linhas 141-143):**
 ```javascript
-export function generateValidPassword() {
-  const randomNumber = Math.floor(Math.random() * 9000) + 1000;
-  return `Pass${randomNumber}`;
-}
+group('Register User with Faker Data', function () {
+  const email = faker.person.email()
+  const password = faker.internet.password();
+  const name = faker.person.name()
 ```
 
-**Explicação**: Gera senhas aleatórias com no mínimo 6 caracteres, conforme requerido pela API.
-
-#### 5.3 Name Generator
-
-**Localização**: `tests/k6/helpers/name.js`
-
-```javascript
-export function generateRandomName() {
-  const names = ['John', 'Jane', 'Bob', 'Alice', 'Charlie', 'Diana', 'Edward', 'Fiona', 'George', 'Helen'];
-  const surnames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
-  
-  const name = names[Math.floor(Math.random() * names.length)];
-  const surname = surnames[Math.floor(Math.random() * surnames.length)];
-  
-  return `${name} ${surname}`;
-}
-```
-
-**Explicação**: Combina nomes e sobrenomes aleatoriamente para criar nomes de usuários variados.
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Faker (k6/x/faker)**. A extensão xk6-faker é importada na linha 7 e utilizada no Grupo 02 para gerar dados únicos e realistas a cada iteração. Usamos `faker.person.email()` para emails válidos, `faker.internet.password()` para senhas seguras e `faker.person.name()` para nomes completos. Isso simula um cenário mais próximo da realidade, onde cada usuário tem dados únicos.
 
 ---
 
-### 6. Variáveis de Ambiente
+### 6. 🌍 Variáveis de Ambiente
 
-Permitem configurar valores em runtime, como a URL base da API.
+**Localização:** `tests/k6/helpers/baseUrl.js`
 
-**Localização**: `tests/k6/helpers/baseUrl.js`
+As **Variáveis de Ambiente** permitem configurar o teste dinamicamente via linha de comando.
 
 ```javascript
-// Helper para obter a variável de ambiente
 export function getBaseUrl() {
   return __ENV.BASE_URL || 'http://localhost:3000';
 }
-
-// Uso no teste
-import { getBaseUrl } from './helpers/baseUrl.js';
-const baseUrl = getBaseUrl();
-
-// Executar com variável de ambiente
-// k6 run --env BASE_URL=http://localhost:3000 tests/k6/auth-flow.test.js
-// k6 run --env BASE_URL=http://api.production.com tests/k6/auth-flow.test.js
 ```
 
-**Explicação**: Facilita testar em diferentes ambientes (desenvolvimento, staging, produção) sem modificar o código.
+**Uso via CLI:**
+```bash
+k6 run --env BASE_URL=http://production.com tests/k6/auth-flow.test.js
+```
+
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/helpers/baseUrl.js` e demonstra o uso de **Variáveis de Ambiente**. A função lê a variável `__ENV.BASE_URL` que pode ser definida via linha de comando usando `--env BASE_URL=<valor>`. Se a variável não for fornecida, usa o valor padrão `http://localhost:3000`. Isso permite executar o mesmo teste em diferentes ambientes (desenvolvimento, staging, produção) sem alterar o código.
 
 ---
 
-### 7. Stages
+### 7. 📊 Stages
 
-Define diferentes fases de carga do teste: ramp-up (aumento), carga mantida e ramp-down (redução).
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 33-37)
 
-**Localização**: `tests/k6/auth-flow.test.js`
+Os **Stages** definem diferentes fases de carga durante a execução do teste.
 
 ```javascript
-export const options = {
-  stages: [
-    { duration: '5s', target: 10 },   // Ramp-up: 0 → 10 VUs em 5 segundos
-    { duration: '20s', target: 10 },  // Carga mantida: 10 VUs por 20 segundos
-    { duration: '5s', target: 0 },    // Ramp-down: 10 → 0 VUs em 5 segundos
-  ],
-};
+stages: [
+  { duration: '5s', target: 10 },
+  { duration: '20s', target: 10 },
+  { duration: '5s', target: 0 },
+],
 ```
 
-**Explicação**: 
-- **Ramp-up (5s)**: Aumenta gradualmente de 0 a 10 usuários virtuais para verificar comportamento durante aumento de carga
-- **Sustentado (20s)**: Mantém 10 usuários simultâneos para simular carga normal
-- **Ramp-down (5s)**: Reduz gradualmente para verificar se o sistema se recupera corretamente
-
-Tempo total do teste: 30 segundos.
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Stages**. Configuramos o teste em 3 fases:
+1. **Ramp-up** (5s): Aumenta gradualmente de 0 para 10 VUs (Virtual Users) - simula usuários entrando no sistema
+2. **Plateau** (20s): Mantém 10 VUs constantes - teste de sustentação para avaliar estabilidade
+3. **Ramp-down** (5s): Reduz gradualmente de 10 para 0 VUs - simula usuários saindo do sistema
 
 ---
 
-### 8. Reaproveitamento de Resposta
+### 8. 🔄 Reaproveitamento de Resposta
 
-Extrai dados de uma resposta (como token JWT) para usar em requisições subsequentes.
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 53-54 e 107-108)
 
-**Localização**: `tests/k6/auth-flow.test.js`
+O **Reaproveitamento** extrai dados de uma resposta HTTP para usar em requisições subsequentes.
+
+**Exemplo 1 - Salvar credenciais (linhas 53-54):**
+```javascript
+const email = `${emailParts[0]}_${uniqueId}@${emailParts[1]}`;
+const password = user.password;
+
+registeredEmail = email;
+registeredPassword = password;
+```
+
+**Exemplo 2 - Extrair token JWT (linhas 107-108):**
+```javascript
+if (response.status === 200) {
+  token = response.json('token');
+}
+```
+
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Reaproveitamento de Resposta**. Primeiro, armazenamos as credenciais do usuário registrado em variáveis (`registeredEmail` e `registeredPassword`) para reutilizá-las no login. Depois, extraímos o token JWT da resposta do endpoint de login usando `response.json('token')` e o armazenamos na variável `token` para utilizá-lo em requisições autenticadas subsequentes. Isso simula o fluxo real de um usuário.
+
+---
+
+### 9. 🔐 Uso de Token de Autenticação (JWT)
+
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 113-118)
+
+O **Token JWT** é usado para autenticar requisições a endpoints protegidos.
 
 ```javascript
-// Extrair token na fase de login
-let token = null;
-
-group('Login User', function () {
-  const response = http.post(`${baseUrl}/api/auth/login`, payload, params);
-  
-  if (response.status === 200) {
-    token = response.json('token');  // Extrai o token
-  }
-});
-
-// Reutilizar token em requisições posteriores
 if (token) {
-  group('Get User Data', function () {
+  group('Get User Data with JSON Data', function () {
     const params = {
       headers: {
-        'Authorization': `Bearer ${token}`,  // Usa o token extraído
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     };
-    
-    const response = http.get(`${baseUrl}/api/users`, params);
-    // ...
-  });
-}
 ```
 
-**Explicação**: O token obtido no login é reutilizado para autenticar a requisição de recuperação de dados do usuário, simulando um fluxo real.
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Token de Autenticação JWT**. Após extrair o token da resposta de login, verificamos se ele existe e o incluímos no header `Authorization` com o prefixo `Bearer` conforme o padrão JWT. Este token autentica a requisição GET ao endpoint `/api/users` que é protegido e requer autenticação. Isso valida o fluxo completo de autenticação da API.
 
 ---
 
-### 9. Autenticação com Token JWT
+### 10. 📂 Data-Driven Testing
 
-Utiliza o token JWT extraído do login no header `Authorization: Bearer {token}` para requisições autenticadas.
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 17-19 e linha 45)
 
-**Localização**: `tests/k6/auth-flow.test.js`
+O **Data-Driven Testing** utiliza dados de um arquivo externo para parametrizar os testes.
 
+**Carregamento dos dados (linhas 17-19):**
 ```javascript
-const params = {
-  headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  },
-};
-
-const response = http.get(`${baseUrl}/api/users`, params);
+const users = new SharedArray('users', function () {
+  return JSON.parse(open('./data/users.json'));
+})
 ```
 
-**Explicação**: Implementa o padrão OAuth 2.0 Bearer Token, onde o JWT é incluído no header de autorização.
-
----
-
-### 10. Data-Driven Testing
-
-Utiliza dados variados de um arquivo JSON para exercitar o teste com múltiplas combinações de entrada.
-
-**Localização**: `tests/k6/data/users.json`
-
-```json
-[
-  {
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "password": "Pass1234"
-  },
-  {
-    "name": "Jane Smith",
-    "email": "jane.smith@example.com",
-    "password": "Pass5678"
-  },
-  {
-    "name": "Bob Johnson",
-    "email": "bob.johnson@example.com",
-    "password": "Pass9012"
-  }
-]
-```
-
-**Uso no teste** (`tests/k6/auth-flow.test.js`):
-
+**Distribuição dos dados (linha 45):**
 ```javascript
-// Data-Driven Testing: Load test data
-const usersData = [
-  {
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "password": "Pass1234"
-  },
-  {
-    "name": "Jane Smith",
-    "email": "jane.smith@example.com",
-    "password": "Pass5678"
-  },
-  {
-    "name": "Bob Johnson",
-    "email": "bob.johnson@example.com",
-    "password": "Pass9012"
-  }
-];
-
-export default function () {
-  // Distribuir dados entre usuários virtuais
-  const testDataIndex = __VU % usersData.length;
-  const userData = usersData[testDataIndex];
-  
-  group('Register User', function () {
-    const email = generateRandomEmail();        // Gera email único
-    const password = generateValidPassword();   // Gera senha válida
-    const name = generateRandomName();          // Gera nome aleatório
-    
-    // Usar dados gerados dinamicamente
-    const payload = JSON.stringify({
-      name: name,
-      email: email,
-      password: password,
-    });
-    
-    const response = http.post(`${baseUrl}/api/users`, payload, params);
-    
-    // Armazenar credenciais para uso posterior
-    registeredEmail = email;
-    registeredPassword = password;
-  });
-  
-  group('Login User', function () {
-    // Login usando credenciais registradas
-    const payload = JSON.stringify({
-      email: registeredEmail,
-      password: registeredPassword,
-    });
-    
-    const response = http.post(`${baseUrl}/api/auth/login`, payload, params);
-  });
-}
+const user = users[(__VU - 1) % users.length];
 ```
 
-**Explicação**: 
-- Cada VU (Virtual User) seleciona dados do array usando `__VU % usersData.length`
-- Com 3 variações e 10 VUs, cada combinação é testada múltiplas vezes
-- **Ativo no projeto**: O array de dados é definido diretamente no teste
-- **Híbrido**: Combina dados fixos (JSON data-driven) com dados aleatórios (Faker) para máximo realismo
-- A variável `userData` está disponível para uso em qualquer ponto do teste
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Data-Driven Testing**. Utilizamos `SharedArray` para carregar dados do arquivo `tests/k6/data/users.json` de forma eficiente na memória (compartilhado entre todos os VUs). Cada Virtual User (VU) recebe um usuário diferente usando a fórmula `(__VU - 1) % users.length`, que distribui os usuários de forma circular. Por exemplo, com 10 usuários no arquivo, o VU 1 pega o usuário índice 0, VU 2 pega índice 1, e assim por diante.
 
 ---
 
-### 11. Groups
+### 11. 📦 Groups
 
-Agrupa requisições similares para organizar melhor os testes e facilitar leitura de relatórios.
+**Localização:** `tests/k6/auth-flow.test.js` (linhas 40, 47 e 136)
 
-**Localização**: `tests/k6/auth-flow.test.js`
+Os **Groups** organizam testes em blocos lógicos para análise estruturada de métricas.
 
+**Grupo Principal - Data-Driven (linha 40):**
 ```javascript
-import { group } from 'k6';
+group('01 - Data-Driven Testing (JSON File)', function () {
+  let token = null;
+  let registeredEmail = null;
+  let registeredPassword = null;
 
-group('Register User', function () {
-  // Todas as requisições de registro
-  const response = http.post(`${baseUrl}/api/users`, payload, params);
-  check(response, {
-    'Register status is 201': (r) => r.status === 201,
-  });
-});
+  const user = users[(__VU - 1) % users.length];
 
-group('Login User', function () {
-  // Todas as requisições de login
-  const response = http.post(`${baseUrl}/api/auth/login`, payload, params);
-  check(response, {
-    'Login status is 200': (r) => r.status === 200,
-  });
-});
-
-group('Get User Data', function () {
-  // Todas as requisições de obtenção de dados
-  const response = http.get(`${baseUrl}/api/users`, params);
-  check(response, {
-    'Get user status is 200': (r) => r.status === 200,
-  });
-});
+  group('Register User with JSON Data', function () {
 ```
 
-**Explicação**: Os Groups separam funcionalmente as requisições, facilitando a análise de métricas por fase do fluxo (registro → login → obtenção de dados).
+**Grupo Principal - Faker (linha 136):**
+```javascript
+group('02 - Faker.js Generated Data', function () {
+  let token = null;
+  let registeredEmail = null;
+  let registeredPassword = null;
+
+  group('Register User with Faker Data', function () {
+```
+
+**Explicação:** O código acima está armazenado no arquivo `tests/k6/auth-flow.test.js` e demonstra o uso de **Groups**. Organizamos o teste em 2 grupos principais (01 - Data-Driven e 02 - Faker), cada um contendo 3 sub-grupos (Register, Login, Get User). Os groups permitem que o K6 agregue métricas separadamente para cada seção, facilitando a identificação de gargalos específicos. Por exemplo, podemos comparar se o registro com dados do JSON é mais rápido que com Faker, ou qual endpoint é o mais lento.
 
 ---
 
-## Como Executar os Testes
+## 📁 Estrutura do Projeto
 
-### Pré-requisitos
-
-1. **Node.js** instalado (v16+)
-2. **K6** instalado globalmente:
-   ```bash
-   # Windows (com Chocolatey)
-   choco install k6
-   
-   # macOS (com Homebrew)
-   brew install k6
-   
-   # Linux
-   sudo apt-get install k6
-   ```
-
-3. **API em execução**:
-   ```bash
-   npm start
-   # Servidor rodará em http://localhost:3000
-   ```
-
-### Executar os Testes
-
-#### 1. Com URL padrão (localhost:3000)
-
-```bash
-npm run k6:performance
 ```
+tests/k6/
+├── auth-flow.test.js          # ⭐ Teste principal com todos os conceitos
+├── helpers/
+│   ├── baseUrl.js             # 🔧 Helper de URL (Variável de Ambiente)
+│   └── auth.js                # 🔐 Helper de autenticação (opcional)
+└── data/
+    └── users.json             # 📊 Dados para Data-Driven Testing
 
-#### 2. Com URL customizada
-
-```bash
-k6 run --env BASE_URL=http://api.example.com tests/k6/auth-flow.test.js
-```
-
-#### 3. Com verbose output
-
-```bash
-k6 run -v tests/k6/auth-flow.test.js
-```
-
-#### 4. Sem threshold (apenas coleta dados)
-
-```bash
-k6 run --no-threshold tests/k6/auth-flow.test.js
+generate-test-data.js          # 🎲 Script de geração de dados com Faker.js
+package.json                   # 📦 Dependências e scripts do projeto
 ```
 
 ---
 
-## Analisando Resultados
+## 📊 Resultados e Métricas
 
-Após a execução, o K6 exibe no console:
+### Métricas Coletadas
+
+#### Métricas Padrão do K6
+- `http_req_duration` - Duração total das requisições HTTP
+- `http_req_failed` - Taxa de falha de requisições
+- `http_reqs` - Total de requisições realizadas
+- `iterations` - Número de iterações completas
+- `vus` - Número de usuários virtuais ativos
+
+#### Métricas Customizadas (Trends) - Data-Driven Testing
+- `register_duration` - Tempo do endpoint de registro (JSON)
+- `login_duration` - Tempo do endpoint de login (JSON)
+- `getuser_duration` - Tempo de consulta de dados (JSON)
+
+#### Métricas Customizadas (Trends) - Faker
+- `faker_register_duration` - Tempo do endpoint de registro (Faker)
+- `faker_login_duration` - Tempo do endpoint de login (Faker)
+- `faker_getuser_duration` - Tempo de consulta de dados (Faker)
+
+### Critérios de Sucesso (Thresholds)
+
+| Métrica | Threshold | Descrição |
+|---------|-----------|-----------|
+| `http_req_duration` | p(95) < 2000ms | 95% das requisições devem responder em menos de 2s |
+| `register_duration` | p(95) < 3000ms | 95% dos registros (JSON) < 3s |
+| `login_duration` | p(95) < 2000ms | 95% dos logins (JSON) < 2s |
+| `getuser_duration` | p(95) < 1000ms | 95% das consultas (JSON) < 1s |
+| `faker_register_duration` | p(95) < 3000ms | 95% dos registros (Faker) < 3s |
+| `faker_login_duration` | p(95) < 2000ms | 95% dos logins (Faker) < 2s |
+| `faker_getuser_duration` | p(95) < 1000ms | 95% das consultas (Faker) < 1s |
+| `checks` | rate > 0.80 | Pelo menos 80% dos checks devem passar |
+
+### Exemplo de Output
 
 ```
 ✓ Register status is 201
-✓ Register response contains id
-✓ Register response contains email
-✓ Register response contains createdAt
 ✓ Login status is 200
-✓ Login response contains token
-✓ Token is not empty
 ✓ Get user status is 200
-✓ Response contains user data
 
-✓ p(95) < 1000 (Threshold PASSED)
-
-checks...................: 95.83% 4600 out of 4800
-data_received.............: 1.2 MB 40 kB/s
-data_sent.................: 892 kB 29 kB/s
-http_req_duration..........: avg=245ms  min=15ms   med=180ms  max=1250ms p(90)=500ms  p(95)=800ms  p(99)=1100ms
-register_duration..........: avg=300ms  min=20ms   med=250ms  max=1200ms p(95)=950ms
-login_duration.............: avg=180ms  min=10ms   med=120ms  max=800ms  p(95)=600ms
-getuser_duration...........: avg=220ms  min=15ms   med=180ms  max=900ms  p(95)=700ms
-http_req_blocked...........: avg=1.2ms  min=0s     med=0s     max=5ms    p(90)=2ms
-http_req_connecting........: avg=0.5ms  min=0s     med=0s     max=3ms    p(90)=1ms
-http_req_tls_handshaking...: avg=0s     min=0s     med=0s     max=0s     p(90)=0s
-http_req_waiting...........: avg=241ms  min=12ms   med=175ms  max=1240ms p(90)=490ms
-http_req_receiving.........: avg=3.2ms  min=0.1ms  med=2ms    max=15ms   p(90)=6ms
-http_reqs..................: 1600    53.33/s
-iteration_duration.........: avg=850ms  min=500ms  med=800ms  max=2000ms
-iterations.................: 320     10.67/s
-vus_max....................: 10
-```
-
-### Interpretando Métricas
-
-| Métrica | Significado |
-|---------|------------|
-| `checks` | Porcentagem de validações que passaram |
-| `http_req_duration` | Tempo de resposta das requisições |
-| `p(95)` | 95º percentil - valor abaixo do qual 95% das requisições caem |
-| `http_reqs` | Total de requisições realizadas |
-| `iterations` | Quantas vezes a função default foi executada |
-| `vus_max` | Máximo de usuários virtuais simultâneos |
-
----
-
-## Requisitos de Performance
-
-O teste passa quando:
-
-✅ **p(95) < 1000ms** (95% das requisições respondem em menos de 1 segundo)
-
-Se este threshold for violado:
-- ❌ Teste falha
-- Indica possível gargalo na API
-- Recomenda-se investigar logs do servidor
-
----
-
-## Troubleshooting
-
-### Erro: "Cannot find module 'k6/metrics'"
-
-K6 já vem com módulos built-in. Verifique que não há `npm install k6` em `node_modules`.
-
-```bash
-# Limpar node_modules se necessário
-rm -rf node_modules
-npm install
-```
-
-### Erro: "Unauthorized" no GET /api/users
-
-Verifique que:
-1. O token foi extraído corretamente do login
-2. O header `Authorization: Bearer {token}` está sendo enviado
-3. O JWT não expirou
-
-### Conexão recusada
-
-Certifique-se que a API está rodando:
-
-```bash
-npm start
-# Confirme que a mensagem mostra "Server running on port 3000"
+checks.........................: 100.00% ✓ 600     ✗ 0   
+http_req_duration..............: avg=145ms min=12ms med=98ms  max=892ms p(90)=387ms p(95)=521ms
+register_duration..............: avg=187ms min=45ms med=152ms max=654ms p(90)=298ms p(95)=412ms
+login_duration.................: avg=98ms  min=21ms med=76ms  max=321ms p(90)=178ms p(95)=234ms
+getuser_duration...............: avg=76ms  min=12ms med=58ms  max=256ms p(90)=143ms p(95)=189ms
+faker_register_duration........: avg=192ms min=48ms med=159ms max=678ms p(90)=305ms p(95)=421ms
+faker_login_duration...........: avg=102ms min=23ms med=79ms  max=334ms p(90)=184ms p(95)=241ms
+faker_getuser_duration.........: avg=79ms  min=14ms med=61ms  max=267ms p(90)=148ms p(95)=196ms
+http_reqs......................: 300     10/s
+iterations.....................: 100     3.33/s
+vus............................: 10      min=0     max=10
 ```
 
 ---
 
-## Documentação Adicional
+## 📚 Referências
 
-- [K6 Official Documentation](https://k6.io/docs)
-- [K6 HTTP Client](https://k6.io/docs/javascript-api/k6-http)
-- [K6 Metrics](https://k6.io/docs/javascript-api/k6-metrics)
-- [JWT Authentication](https://jwt.io)
-
----
-
-## ✅ Checklist dos 11 Conceitos Implementados
-
-| # | Conceito | Status | Localização |
-|---|----------|--------|------------|
-| 1 | **Thresholds** | ✅ | `export const options: thresholds` (linha 23-28) |
-| 2 | **Checks** | ✅ | Múltiplas `check()` por endpoint (linhas 64-68, 82-86, 104-107) |
-| 3 | **Helpers** | ✅ | `helpers/` com 5 funções reutilizáveis |
-| 4 | **Trends** | ✅ | 3 trends customizadas: register/login/getuser_duration (linhas 16-18) |
-| 5 | **Faker** | ✅ | Helpers: `generateRandomEmail()`, `generateValidPassword()`, `generateRandomName()` |
-| 6 | **Variável de Ambiente** | ✅ | `__ENV.BASE_URL` em `helpers/baseUrl.js` |
-| 7 | **Stages** | ✅ | `export const options: stages` (linhas 30-34) - ramp-up, sustain, ramp-down |
-| 8 | **Reaproveitamento de Resposta** | ✅ | Token extraído do login e reutilizado no GET (linhas 88, 103) |
-| 9 | **Token JWT** | ✅ | `Authorization: Bearer ${token}` header (linha 101) |
-| 10 | **Data-Driven Testing** | ✅ | Array `usersData` com distribuição `__VU % usersData.length` (linhas 17-31, 46) |
-| 11 | **Groups** | ✅ | 3 groups: "Register User", "Login User", "Get User Data" (linhas 48, 76, 95) |
+- [Documentação Oficial K6](https://k6.io/docs/)
+- [xk6-faker Extension](https://github.com/szkiba/xk6-faker)
+- [K6 Extensions](https://k6.io/docs/extensions/)
+- [Faker.js Documentation](https://fakerjs.dev/)
 
 ---
 
-## Conclusão
+## 👨‍💻 Autor
 
-Este teste de performance implementa todas as 11 melhores práticas de K6:
+**João Vitor dos Santos** (QAkarotto - Goku)
 
-✅ **Fluxo completo de autenticação**: Register → Login → Get User  
-✅ **Thresholds de performance**: p95 < 1000ms em todos os endpoints  
-✅ **Data-driven testing**: 3 variações de dados distribuídas entre VUs  
-✅ **Stages de carga**: Ramp-up (5s) → Sustentação (20s) → Ramp-down (5s)  
-✅ **Helpers reutilizáveis**: Modularização para manutenção fácil  
-✅ **Trends customizadas**: Métricas separadas por endpoint  
-✅ **Validações robustas**: Checks em status, campos e valores  
-✅ **Faker integration**: Dados aleatórios e realistas  
-✅ **Variáveis de ambiente**: Flexibilidade para múltiplos ambientes  
-✅ **Reaproveitamento de respostas**: Token extraído e reutilizado  
-✅ **JWT autenticação**: Bearer Token no header Authorization  
+- GitHub: [@QAkarotto](https://github.com/QAkarotto)
+- Projeto: Trabalho Final - PGATS Performance Testing
+- Instituição: Pós-Graduação em Automação de Testes de Software
+- Disciplina: Automação de Testes de Performance
 
-O resultado final é um teste **robusto, manutenível e escalável** para garantir qualidade de performance da API em produção.
+---
+
+<div align="center">
+
+**⭐ Se este projeto foi útil para você, considere dar uma estrela!**
+
+</div>
+
+
+

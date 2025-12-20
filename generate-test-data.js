@@ -1,23 +1,13 @@
-/**
- * Script para gerar dados de teste com Faker.js
- * Use: node generate-test-data.js
- * Saída: tests/k6/data/faker-users.json
- */
-
 import { faker } from '@faker-js/faker';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// Get current directory path (for ES modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Configuration
 const NUM_USERS = 10;
-const OUTPUT_FILE = path.join(__dirname, 'tests/k6/data/faker-users.json');
+const OUTPUT_FILE = path.join(__dirname, 'tests/k6/data/users.json');
 
-// Generate random users with faker
 function generateUsers(count) {
   const users = [];
   
@@ -41,19 +31,16 @@ function generateUsers(count) {
   return users;
 }
 
-// Main
 try {
   console.log(`\n📊 Generating ${NUM_USERS} test users with Faker.js...\n`);
   
   const users = generateUsers(NUM_USERS);
   
-  // Create output directory if it doesn't exist
   const dir = path.dirname(OUTPUT_FILE);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
   
-  // Write to file
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(users, null, 2));
   
   console.log(`✅ Generated ${users.length} users`);

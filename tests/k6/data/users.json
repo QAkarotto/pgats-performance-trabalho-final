@@ -1,17 +1,102 @@
 [
   {
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "password": "Pass1234"
+    "id": 1,
+    "name": "Miguel Schuppe",
+    "email": "Ashlee_Leuschke@gmail.com",
+    "password": "^9g2aYbuGi4Z",
+    "phone": "(597) 858-6508",
+    "company": "DuBuque, Monahan and Pacocha",
+    "city": "Fort Destineyborough",
+    "country": "Portugal"
   },
   {
-    "name": "Jane Smith",
-    "email": "jane.smith@example.com",
-    "password": "Pass5678"
+    "id": 2,
+    "name": "Lillie O'Connell",
+    "email": "Elenora31@hotmail.com",
+    "password": "M#mXA%HYuzX!",
+    "phone": "(895) 624-1877 x9257",
+    "company": "Grant Group",
+    "city": "North Saige",
+    "country": "Paraguay"
   },
   {
-    "name": "Bob Johnson",
-    "email": "bob.johnson@example.com",
-    "password": "Pass9012"
+    "id": 3,
+    "name": "Erik Reynolds",
+    "email": "Shannon_Hintz@yahoo.com",
+    "password": "mCME*ldSz8K5",
+    "phone": "1-576-591-1398 x585",
+    "company": "Borer Inc",
+    "city": "Lehnerborough",
+    "country": "Barbados"
+  },
+  {
+    "id": 4,
+    "name": "Lee Friesen",
+    "email": "Emmalee_Runolfsdottir29@hotmail.com",
+    "password": "leVkNzRwZnOb",
+    "phone": "1-329-247-6092",
+    "company": "D'Amore Group",
+    "city": "Fort Melyna",
+    "country": "Ethiopia"
+  },
+  {
+    "id": 5,
+    "name": "Miss Lula Kunde",
+    "email": "Rick.Waelchi@hotmail.com",
+    "password": "r7es*LQ$Z@Z6",
+    "phone": "(726) 933-2302 x187",
+    "company": "Bergnaum - Cole",
+    "city": "Boyerside",
+    "country": "Niger"
+  },
+  {
+    "id": 6,
+    "name": "Lorraine Russel",
+    "email": "Otto89@yahoo.com",
+    "password": "OA9Bv1424S!X",
+    "phone": "662-342-6391",
+    "company": "Carroll and Sons",
+    "city": "South Freida",
+    "country": "Guatemala"
+  },
+  {
+    "id": 7,
+    "name": "Joey Daugherty",
+    "email": "Mitchel.Block@yahoo.com",
+    "password": "hwJhi^ZiT!he",
+    "phone": "1-898-715-8627 x86572",
+    "company": "Collins LLC",
+    "city": "Florianboro",
+    "country": "Kyrgyz Republic"
+  },
+  {
+    "id": 8,
+    "name": "Keith Marvin",
+    "email": "Minnie.Runolfsdottir@yahoo.com",
+    "password": "mo1xlagvV%K#",
+    "phone": "999.735.6628 x391",
+    "company": "Bergstrom - Thiel",
+    "city": "Skokie",
+    "country": "Mauritania"
+  },
+  {
+    "id": 9,
+    "name": "Marguerite Yost",
+    "email": "Nyah.Runolfsson49@gmail.com",
+    "password": "l$ojImPUzaro",
+    "phone": "(665) 878-9166",
+    "company": "Langosh, Torp and Donnelly",
+    "city": "Littleton",
+    "country": "Tokelau"
+  },
+  {
+    "id": 10,
+    "name": "Faith Kozey MD",
+    "email": "Freddie.Rice@gmail.com",
+    "password": "3s1qV%An1RTr",
+    "phone": "1-706-858-8584 x1638",
+    "company": "Stracke and Sons",
+    "city": "East Carlistad",
+    "country": "Latvia"
   }
 ]

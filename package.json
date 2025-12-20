@@ -18,11 +18,8 @@
     "test:coverage": "NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha tests/**/*.test.js --recursive --timeout 5000 --exit --reporter spec",
     "test:coverage:json": "NODE_ENV=test nyc --reporter=json mocha tests/**/*.test.js --recursive --timeout 5000 --exit --reporter spec",
     "test:ci": "NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov --reporter=json mocha tests/**/*.test.js --recursive --timeout 5000 --exit --reporter mochawesome",
-    "generate:faker-data": "node generate-test-data.js",
-    "k6:performance": "k6 run --env BASE_URL=http://localhost:3000 tests/k6/auth-flow.test.js",
-    "k6:performance:faker": "npm run generate:faker-data && k6 run --env BASE_URL=http://localhost:3000 tests/k6/auth-flow.test.js",
-    "k6:performance:report": "k6 run --env BASE_URL=http://localhost:3000 -o json=tests/k6/results.json tests/k6/auth-flow.test.js && node -e \"const reporter = require('@reportportal/agent-k6'); reporter('tests/k6/results.json');\" 2>/dev/null || true",
-    "lint": "echo 'No linting configured yet'",
+    "generate:users-data": "node generate-test-data.js",
+    "test:performance": "npm run generate:users-data && k6 run --env BASE_URL=http://localhost:3000 tests/k6/auth-flow.test.js",
     "lint:fix": "echo 'No linting configured yet'",
     "audit": "npm audit --audit-level=moderate",
     "audit:fix": "npm audit fix"
